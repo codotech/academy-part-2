@@ -2,7 +2,9 @@
 
 ## What You'll Do
 
-This week you're going to build a real backend that searches Spotify, then wire it to a **new frontend starter** we provide for you. Think of it as joining a real engineering team: the platform team has already shipped the frontend foundation; your job is to build the backend it expects and connect the two.
+This week you're going to build a real backend that searches Spotify, then wire it to a **new frontend starter** we
+provide for you. Think of it as joining a real engineering team: the platform team has already shipped the frontend
+foundation; your job is to build the backend it expects and connect the two.
 
 By the end of this homework:
 
@@ -12,47 +14,48 @@ By the end of this homework:
 - You'll have written your first real API integration (Spotify OAuth + search)
 - You'll have implemented runtime contracts (Zod) as a guardrail between two services you own
 
-> **Heads up:** Next week's class is a pivot. We're redesigning how this whole course works. But the concepts and muscle you build this week: backend fundamentals, REST APIs, external integrations. You'll need either way. Nothing in this homework is throw-away.
-
----
+> **Heads up:** Next week's class is a pivot. We're redesigning how this whole course works. But the concepts and muscle
+> you build this week: backend fundamentals, REST APIs, external integrations. You'll need either way. Nothing in this
+> homework is throw-away.
 
 ## Our Approach Still: AI-Native
 
-You already know the drill from Homework #1. Stay inside Claude Code. Don't bounce between Claude and a separate terminal. Let it install packages, run commands, debug, and explain. Your job is to **think, decide, and prove it works**, not to type boilerplate.
+You already know the drill from Homework #1. Stay inside Claude Code. Don't bounce between Claude and a separate
+terminal. Let it install packages, run commands, debug, and explain. Your job is to **think, decide, and prove it works
+**, not to type boilerplate.
 
-**What you WON'T touch this week:** the Claude SDK (LLM integration). That's coming later. This week is pure backend, REST, and Spotify.
-
----
+**What you WON'T touch this week:** the Claude SDK (LLM integration). That's coming later. This week is pure backend,
+REST, and Spotify.
 
 ## Before You Start: Know Your Track
 
-Answer these three questions honestly. No grades — this just tells you where to start.
+Answer these three questions honestly. No grades this just tells you where to start.
 
 **1. Have you built a Node.js + Express server before, even a toy one?**
 **2. Do you understand async/await and Promises in JavaScript without looking it up?**
 **3. Have you used TypeScript in strict mode on a real project?**
 
----
+| Your answers                      | Your track                                                   |
+|-----------------------------------|--------------------------------------------------------------|
+| Mostly No                         | **Full track**  start from Part 1                            |
+| Mixed (know some JS, not Node/TS) | **Express track**  do Part 1 selectively, see markers below  |
+| Mostly Yes                        | **Fast track**  skip to Part 3, do Part 1 concept check only |
 
-| Your answers | Your track |
-|---|---|
-| Mostly No | **Full track** — start from Part 1 |
-| Mixed (know some JS, not Node/TS) | **Express track** — do Part 1 selectively, see markers below |
-| Mostly Yes | **Fast track** — skip to Part 3, do Part 1 concept check only |
+**Everyone regardless of track does Parts 3, 4, and 5 in full.** That's where the actual course learning is.
 
-**Everyone — regardless of track — does Parts 3, 4, and 5 in full.** That's where the actual course learning is.
 
----
-
-> **One concept that matters before anything else — even if you're on the fast track:**
+> **One concept that matters before anything else even if you're on the fast track:**
 >
 > **TypeScript types are erased at runtime.**
 >
-> If you're coming from C# or Java, this is the most important thing to internalize. In C#, `response is SearchResponse` works at runtime. In TypeScript, it doesn't — the type `SearchResponse` is gone the moment the compiler runs. At runtime, you receive a raw `unknown` blob from the network. Zod validates it. TypeScript types describe it. They are not the same thing.
+> If you're coming from C# or Java, this is the most important thing to internalize. In C#, `response is SearchResponse`
+> works at runtime. In TypeScript, it doesn't the type `SearchResponse` is gone the moment the compiler runs. At
+> runtime, you receive a raw `unknown` blob from the network. Zod validates it. TypeScript types describe it. They are
+> not
+> the same thing.
 >
-> This is why `contracts.ts` exists. This is why `SearchResponseSchema.safeParse()` is not optional. If you understand this one thing, everything else in this homework clicks.
-
----
+> This is why `contracts.ts` exists. This is why `SearchResponseSchema.safeParse()` is not optional. If you understand
+> this one thing, everything else in this homework clicks.
 
 ## Part 0: Prerequisites
 
@@ -69,12 +72,13 @@ git clone <URL provided in class> music-finder
 cd music-finder
 ```
 
-Inside you'll find two folders: `frontend/` and `backend/`. **Read the root `README.md` first** — it explains both starters and how Claude Code works in this homework.
+Inside you'll find two folders: `frontend/` and `backend/`. **Read the root `README.md` first**  it explains both
+starters and how Claude Code works in this homework.
 
 ```bash
 # Frontend
 cd frontend && npm install && npm run dev
-# → http://localhost:5173 — searches fail (expected, API client is a stub)
+# → http://localhost:5173  searches fail (expected, API client is a stub)
 
 # Backend (new terminal)
 cd ../backend
@@ -83,7 +87,8 @@ npm install && npm run dev
 # → http://localhost:3000/health returns { "status": "ok" }
 ```
 
-Read the `README.md` in each folder. The backend README has the only hard requirement: what `GET /api/search` must return. How you get there is up to you.
+Read the `README.md` in each folder. The backend README has the only hard requirement: what `GET /api/search` must
+return. How you get there is up to you.
 
 > Your Homework #1 frontend stays as a reference. You won't modify it this week.
 
@@ -92,15 +97,15 @@ Read the `README.md` in each folder. The backend README has the only hard requir
 1. Go to [developer.spotify.com/dashboard](https://developer.spotify.com/dashboard) and log in with any Spotify account
 2. Click **Create App**
 3. Fill in:
-   - **App name:** "Music Finder - Your Name"
-   - **App description:** "Codo Academy homework"
-   - **Redirect URI:** `http://localhost:3000/callback` (we won't use it, but it's required)
-   - **Which API/SDKs are you planning to use?** Select "Web API"
+
+- **App name:** "Music Finder - Your Name"
+- **App description:** "Codo Academy homework"
+- **Redirect URI:** `http://localhost:3000/callback` (we won't use it, but it's required)
+- **Which API/SDKs are you planning to use?** Select "Web API"
+
 4. After creation, click **Settings** and copy your **Client ID** and **Client Secret**
 
 Keep these somewhere safe; you'll put them in a `.env` file in Part 3.
-
----
 
 ## Part 1: Study the Foundations
 
@@ -110,33 +115,34 @@ Keep these somewhere safe; you'll put them in a `.env` file in Part 3.
 
 ### Watch
 
-| Topic | Search for | Channel | Track |
-|-------|-----------|---------|-------|
-| What is Node.js? | "What the heck is Node.js" | Fireship | ★ Required |
-| Node event loop | "Node.js event loop explained" | Fireship, ByteByteGo | ★ Required |
-| What happens when you type a URL | "What happens when you type google.com" | ByteByteGo | ★ Required |
-| HTTP crash course | "HTTP explained" or "HTTP crash course" | Fireship | ★ Required |
-| REST API | "REST API explained" or "REST API best practices" | ByteByteGo | Full track |
-| Backend engineering | "Backend engineering fundamentals" | Hussein Nasser | Full track |
-| System latency | "Latency vs throughput" or "Latency percentiles p99" | ByteByteGo | Full track |
+| Topic                            | Search for                                           | Channel              | Track      |
+|----------------------------------|------------------------------------------------------|----------------------|------------|
+| What is Node.js?                 | "What the heck is Node.js"                           | Fireship             | ★ Required |
+| Node event loop                  | "Node.js event loop explained"                       | Fireship, ByteByteGo | ★ Required |
+| What happens when you type a URL | "What happens when you type google.com"              | ByteByteGo           | ★ Required |
+| HTTP crash course                | "HTTP explained" or "HTTP crash course"              | Fireship             | ★ Required |
+| REST API                         | "REST API explained" or "REST API best practices"    | ByteByteGo           | Full track |
+| Backend engineering              | "Backend engineering fundamentals"                   | Hussein Nasser       | Full track |
+| System latency                   | "Latency vs throughput" or "Latency percentiles p99" | ByteByteGo           | Full track |
 
 ### Read
 
-| Resource | Track |
-|----------|-------|
-| [MDN: HTTP Overview](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Overview) | ★ Required |
-| [Node.js docs: Anatomy of an HTTP Transaction](https://nodejs.org/en/learn/modules/anatomy-of-an-http-transaction) | ★ Required |
+| Resource                                                                                                                         | Track      |
+|----------------------------------------------------------------------------------------------------------------------------------|------------|
+| [MDN: HTTP Overview](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Overview)                                          | ★ Required |
+| [Node.js docs: Anatomy of an HTTP Transaction](https://nodejs.org/en/learn/modules/anatomy-of-an-http-transaction)               | ★ Required |
 | [Vinay Sahni: Best Practices for a Pragmatic RESTful API](https://www.vinaysahni.com/best-practices-for-a-pragmatic-restful-api) | Full track |
-| [roadmap.sh: Backend](https://roadmap.sh/backend) — skim top tier, click into anything unfamiliar | Full track |
+| [roadmap.sh: Backend](https://roadmap.sh/backend)  skim top tier, click into anything unfamiliar                                 | Full track |
 
-### Concept check — everyone answers these before class
+### Concept check  everyone answers these before class
 
 You don't need to write anything down. But in the next session, you'll be asked:
 
 1. Why is Node.js single-threaded? What does "non-blocking I/O" mean?
 2. What's the difference between `GET /songs`, `POST /songs`, `PUT /songs/123`, and `DELETE /songs/123`?
 3. What does a **401** mean vs **403** vs **404** vs **500**?
-4. Walk through what happens when your browser hits `https://spotify.com`: DNS → TCP → HTTPS → HTTP request → server response → browser render.
+4. Walk through what happens when your browser hits `https://spotify.com`: DNS → TCP → HTTPS → HTTP request → server
+   response → browser render.
 5. What is a **protocol**? How does HTTP sit on top of TCP?
 6. What does "**latency p99 = 500ms**" mean? How is it different from average latency?
 7. Why do we need **Spotify's OAuth** and why can't the frontend just call `api.spotify.com/v1/search` directly?
@@ -152,15 +158,15 @@ of a slow database query vs a fast in-memory lookup.
 
 Claude is a tutor. Use it.
 
----
-
 ## Part 2: Build a Node + Express Backend
 
 > **Full track:** Do this whole section (~90 min).
-> **Express track:** Do this section fast (~30 min) — you know this, just get the scaffolding done.
-> **Fast track:** Skip. Start from your existing Node/Express setup, or scaffold it in 5 min with the prompt in the cheat sheet at the bottom.
+> **Express track:** Do this section fast (~30 min)  you know this, just get the scaffolding done.
+> **Fast track:** Skip. Start from your existing Node/Express setup, or scaffold it in 5 min with the prompt in the
+> cheat sheet at the bottom.
 
-You're going to build a tiny backend from scratch using Claude Code. This becomes the foundation for the Spotify integration in Part 3.
+You're going to build a tiny backend from scratch using Claude Code. This becomes the foundation for the Spotify
+integration in Part 3.
 
 ### Step 1: Create your backend project
 
@@ -172,7 +178,11 @@ cd music-finder-backend
 claude
 ```
 
-> **Coming from Java or C#?** `package.json` is your project manifest — the equivalent of `pom.xml` or `.csproj`. It lists your dependencies (`express`, `typescript`, etc.) and the scripts you can run (`npm run dev`, `npm run build`). `npm install` downloads everything in `dependencies` and `devDependencies` into `node_modules/`. That folder is never committed to git (it's in `.gitignore`) — just like you don't commit your Maven local repository. `devDependencies` are tools that only run on your machine (TypeScript compiler, nodemon). `dependencies` are what ships to production.
+> **Coming from Java or C#?** `package.json` is your project manifest the equivalent of `pom.xml` or `.csproj`. It
+> lists your dependencies (`express`, `typescript`, etc.) and the scripts you can run (`npm run dev`, `npm run build`).
+`npm install` downloads everything in `dependencies` and `devDependencies` into `node_modules/`. That folder is never
+> committed to git (it's in `.gitignore`)  just like you don't commit your Maven local repository. `devDependencies` are
+> tools that only run on your machine (TypeScript compiler, nodemon). `dependencies` are what ships to production.
 
 ### Step 2: Understand what you have
 
@@ -185,9 +195,9 @@ Then ask Claude:
 ```
 Walk me through what happens when I curl GET http://localhost:3000/health.
 Explain it at three levels:
-1. Node.js — event loop, what the request handler does
-2. HTTP — headers, status codes, response body
-3. TCP/IP — what's actually happening underneath
+1. Node.js  event loop, what the request handler does
+2. HTTP  headers, status codes, response body
+3. TCP/IP  what's actually happening underneath
 ```
 
 Read it. Ask follow-up questions. This is the foundation for everything else.
@@ -197,19 +207,18 @@ Read it. Ask follow-up questions. This is the foundation for everything else.
 - [ ] `curl localhost:3000/health` returns `{ "status": "ok" }`
 - [ ] You can explain the request flow at all three levels
 
----
-
 > **All tracks rejoin here. Parts 3, 4, and 5 are mandatory for everyone.**
-
----
 
 ## Part 3: Connect to Spotify (~60 min)
 
 ### What is Client Credentials?
 
-Spotify's **Client Credentials** flow is the simplest OAuth pattern: you trade your Client ID + Secret for an access token. The token expires after an hour. No user login needed. You can search tracks, artists, albums — but can't touch personal Spotify data.
+Spotify's **Client Credentials** flow is the simplest OAuth pattern: you trade your Client ID + Secret for an access
+token. The token expires after an hour. No user login needed. You can search tracks, artists, albums but can't touch
+personal Spotify data.
 
-This is also why the frontend can't call Spotify directly: the Client Secret would be exposed in browser JavaScript. The backend holds the secret, gets the token, makes the call.
+This is also why the frontend can't call Spotify directly: the Client Secret would be exposed in browser JavaScript. The
+backend holds the secret, gets the token, makes the call.
 
 ### Your task
 
@@ -260,7 +269,9 @@ curl "http://localhost:3000/api/search?q=daft+punk"
 # → second call should be faster (token cached)
 ```
 
-Then ask Claude to explain what it built — the auth flow, the token caching, the error handling. Make sure you understand it before moving on.
+Then ask Claude to explain what it built the auth flow, the token caching, the error handling. Make sure you
+understand it before moving on.
+
 ```
 
 Confirm:
@@ -271,10 +282,9 @@ Confirm:
 - [ ] `GET /api/search?q=<anything>` returns real Spotify results in the contracted shape
 - [ ] Missing/empty query returns 400
 - [ ] Token is cached (second call is faster than first)
-- [ ] `.env` is in `.gitignore` — your secret is not in git
+- [ ] `.env` is in `.gitignore`  your secret is not in git
 - [ ] You can explain to Claude what the Client Credentials flow is doing
 
----
 
 ## Part 4: Wire Up the Frontend Starter (~75 min)
 
@@ -286,27 +296,28 @@ The starter is **opinionated**. It already has the design system, the SPA shell,
 
 Before you touch any code, understand the shape of what you're building and why it's two servers, not one.
 
-**CORS — the rule that forces this design.**
+**CORS  the rule that forces this design.**
 
-Browsers enforce a security rule called the **Same-Origin Policy**: JavaScript on `http://localhost:5173` (your frontend) is not allowed to make requests to `https://api.spotify.com` (a different origin). The browser blocks it. This is not a bug — it prevents malicious pages from making requests on behalf of a logged-in user.
+Browsers enforce a security rule called the **Same-Origin Policy**: JavaScript on `http://localhost:5173` (your frontend) is not allowed to make requests to `https://api.spotify.com` (a different origin). The browser blocks it. This is not a bug  it prevents malicious pages from making requests on behalf of a logged-in user.
 
-CORS (Cross-Origin Resource Sharing) is the mechanism that lets servers selectively relax this rule by sending headers like `Access-Control-Allow-Origin`. Spotify's API does NOT relax it for browser requests — it only accepts server-to-server calls.
+CORS (Cross-Origin Resource Sharing) is the mechanism that lets servers selectively relax this rule by sending headers like `Access-Control-Allow-Origin`. Spotify's API does NOT relax it for browser requests  it only accepts server-to-server calls.
 
 This is why the architecture looks like this:
 
 ```
+
 Browser (5173) → Your backend (3000) → Spotify API
+
 ```
 
-The browser IS allowed to talk to your backend (same machine, you control the CORS headers). Your backend IS allowed to talk to Spotify (server-to-server, no browser CORS enforcement). So your backend is a proxy — it exists because CORS forces it.
+The browser IS allowed to talk to your backend (same machine, you control the CORS headers). Your backend IS allowed to talk to Spotify (server-to-server, no browser CORS enforcement). So your backend is a proxy  it exists because CORS forces it.
 
 **Why does the Vite dev server proxy `/api` to `localhost:3000`?**
 
-Even your backend is on a different port (`3000`) than the frontend (`5173`). Technically that's a different origin, so the browser would block that too — unless your backend sends CORS headers. In dev, Vite sidesteps this by proxying: when the frontend fetches `/api/search`, Vite intercepts it server-side and forwards it to `localhost:3000` before the browser ever sees the response. No CORS headers needed in dev because there's never a cross-origin request — Vite makes the call, not the browser.
+Even your backend is on a different port (`3000`) than the frontend (`5173`). Technically that's a different origin, so the browser would block that too  unless your backend sends CORS headers. In dev, Vite sidesteps this by proxying: when the frontend fetches `/api/search`, Vite intercepts it server-side and forwards it to `localhost:3000` before the browser ever sees the response. No CORS headers needed in dev because there's never a cross-origin request  Vite makes the call, not the browser.
 
 In production you'd configure proper CORS headers on the backend. For now, Vite handles it.
 
----
 
 ### Step 0: Read what's there
 
@@ -318,22 +329,34 @@ ls src/
 ```
 
 Identify:
-- **GIVEN** files (header, search-prompt, empty-state, loading-state, error-state, toast, all CSS, the home view, contracts.ts) — don't touch these
-- **STUB** files (api.ts, state.ts, components/track-card.ts, components/results-grid.ts) — these are yours
+
+- **GIVEN** files (header, search-prompt, empty-state, loading-state, error-state, toast, all CSS, the home view,
+  contracts.ts)  don't touch these
+- **STUB** files (api.ts, state.ts, components/track-card.ts, components/results-grid.ts)  these are yours
 
 Open `src/contracts.ts` and read it carefully.
 
 > **What is a contract?**
 >
-> A contract is an agreement between two systems about the shape of data they exchange. In this homework, the frontend and backend are two separate systems — they can't share TypeScript types at runtime. The only thing that connects them is the *shape of the HTTP response*.
+> A contract is an agreement between two systems about the shape of data they exchange. In this homework, the frontend
+> and backend are two separate systems they can't share TypeScript types at runtime. The only thing that connects them
+> is the *shape of the HTTP response*.
 >
-> `contracts.ts` makes that agreement machine-readable. It says: "anyone calling `GET /api/search` will receive exactly this JSON shape — these fields, these types, these nullability rules." The frontend uses this file to validate every response at runtime. If the backend sends back the wrong shape — a missing field, a renamed key, a string where `null` was expected — Zod catches it immediately and surfaces a `ContractError` before it becomes a broken UI.
+> `contracts.ts` makes that agreement machine-readable. It says: "anyone calling `GET /api/search` will receive exactly
+> this JSON shape these fields, these types, these nullability rules." The frontend uses this file to validate every
+> response at runtime. If the backend sends back the wrong shape a missing field, a renamed key, a string where `null`
+> was expected Zod catches it immediately and surfaces a `ContractError` before it becomes a broken UI.
 >
-> This is how Stripe manages their API. When they release a new version, they version the contract. Apps depending on v1 keep working. The contract is what lets two independent systems evolve without breaking each other.
+> This is how Stripe manages their API. When they release a new version, they version the contract. Apps depending on v1
+> keep working. The contract is what lets two independent systems evolve without breaking each other.
 >
-> In a larger codebase, contracts are often shared packages — the backend generates them, the frontend imports them. Here, we've put it in the frontend for simplicity. But the principle is the same: **the contract is the source of truth. Both sides honor it.**
+> In a larger codebase, contracts are often shared packages the backend generates them, the frontend imports them.
+> Here, we've put it in the frontend for simplicity. But the principle is the same: **the contract is the source of
+truth.
+Both sides honor it.**
 
-**Your backend MUST return responses that match `SearchResponseSchema`.** If it doesn't, the frontend will surface a `ContractError` — not broken UI, not a confusing crash. A clear, explicit violation.
+**Your backend MUST return responses that match `SearchResponseSchema`.** If it doesn't, the frontend will surface a
+`ContractError`  not broken UI, not a confusing crash. A clear, explicit violation.
 
 ### Step 1: Verify the contract is honored
 
@@ -343,7 +366,8 @@ Your backend should already return the right shape from Part 3. Double-check:
 curl "http://localhost:3000/api/search?q=daft+punk" | jq '.results[0]'
 ```
 
-Every field must match exactly — `id`, `name`, `artist`, `album`, `preview_url`, `external_url`, `cover_url`. If any key is wrong or missing, the frontend Zod parser will surface a `ContractError`.
+Every field must match exactly  `id`, `name`, `artist`, `album`, `preview_url`, `external_url`, `cover_url`. If any key
+is wrong or missing, the frontend Zod parser will surface a `ContractError`.
 
 ### Step 2: Implement `src/api.ts` ← most important stub
 
@@ -356,7 +380,7 @@ cd music-finder-frontend
 claude
 ```
 
-Read the file first — it has a detailed comment block. Then:
+Read the file first it has a detailed comment block. Then:
 
 ```
 Implement searchTracks in src/api.ts following the comment block at the top
@@ -378,7 +402,9 @@ failure, return an empty history rather than throwing.
 ```
 
 ### Step 4: Implement `src/components/track-card.ts`
-> Claude implements this. Read what it wrote and understand the CustomEvent pattern. Don't spend more than 20 minutes here.
+
+> Claude implements this. Read what it wrote and understand the CustomEvent pattern. Don't spend more than 20 minutes
+> here.
 
 ```
 Implement createTrackCard following the comment block. Render a div.track-card
@@ -391,7 +417,9 @@ when saved). Both events bubble.
 ```
 
 ### Step 5: Implement `src/components/results-grid.ts`
-> Claude implements this too. Focus on understanding the state machine concept — what states exist, what transitions are valid. Don't get lost in the DOM details.
+
+> Claude implements this too. Focus on understanding the state machine concept what states exist, what transitions are
+> valid. Don't get lost in the DOM details.
 
 ```
 Implement createResultsGrid following the comment block. The element wraps
@@ -427,7 +455,9 @@ Open [http://localhost:5173](http://localhost:5173). Type a search prompt. You s
 
 ### Step 7: Prove the contract guardrail works
 
-Temporarily break the backend response (e.g., rename `name` to `title` in the response object). Search again. The UI should show a `ContractError` with a clear message — **not** a broken card. That's the guardrail catching the violation before it reaches the user.
+Temporarily break the backend response (e.g., rename `name` to `title` in the response object). Search again. The UI
+should show a `ContractError` with a clear message  **not** a broken card. That's the guardrail catching the violation
+before it reaches the user.
 
 Restore the backend.
 
@@ -439,8 +469,6 @@ Restore the backend.
 - [ ] Saved tracks survive a page reload
 - [ ] Breaking the backend contract surfaces a ContractError, not a broken UI
 - [ ] `npm run typecheck && npm run lint` pass cleanly
-
----
 
 ## Part 5: Measure Latency (~20 min)
 
@@ -475,7 +503,8 @@ GET /api/search?q= 400 2ms
 Answer these for yourself:
 
 1. **Why is the first search after server start slower than subsequent ones?** (Hint: token fetch)
-2. **Why is the same query second time usually faster?** (Spoiler: it shouldn't be by much right now. We're not caching the results, only the token. This matters for a later lesson.)
+2. **Why is the same query second time usually faster?** (Spoiler: it shouldn't be by much right now. We're not caching
+   the results, only the token. This matters for a later lesson.)
 3. **Why is `400` (empty query) so fast?** (No external call.)
 4. **If p99 is 800ms and p50 is 200ms, what does that tell you?**
 
@@ -484,6 +513,7 @@ Answer these for yourself:
 Just in a text file or note. Not required to submit. For discussion in class.
 
 Example:
+
 ```
 Ran 10 searches. Latency:
 - min: 180ms
@@ -493,24 +523,20 @@ Ran 10 searches. Latency:
 - Empty query (400): 2ms
 ```
 
----
-
 ## Deliverables
 
-| # | Deliverable | Required |
-|---|-------------|----------|
-| 1 | Local backend at `localhost:3000` with `/health` and `/api/search` | Yes |
-| 2 | Backend connects to Spotify and returns the contracted JSON shape | Yes |
-| 3 | Frontend starter at `localhost:5173` displays real Spotify results from your backend | Yes |
-| 4 | Saved tracks survive a page reload (localStorage + Zod-validated read) | Yes |
-| 5 | Breaking the backend contract surfaces a `ContractError` in the UI, not broken cards | Yes |
-| 6 | `.env` excluded from git (your Spotify secret is not leaked) | Yes |
-| 7 | Latency observations logged (at least 10 searches) | Yes |
-| 8 | Push the backend repo to GitHub (use `gh` CLI via Claude Code) | Yes |
-| 9 | `npm run typecheck && npm run lint` pass cleanly in the frontend | Yes |
-| 10 | Be ready to answer the concept questions from Part 1 in next class | Yes |
-
----
+| #  | Deliverable                                                                          | Required |
+|----|--------------------------------------------------------------------------------------|----------|
+| 1  | Local backend at `localhost:3000` with `/health` and `/api/search`                   | Yes      |
+| 2  | Backend connects to Spotify and returns the contracted JSON shape                    | Yes      |
+| 3  | Frontend starter at `localhost:5173` displays real Spotify results from your backend | Yes      |
+| 4  | Saved tracks survive a page reload (localStorage + Zod-validated read)               | Yes      |
+| 5  | Breaking the backend contract surfaces a `ContractError` in the UI, not broken cards | Yes      |
+| 6  | `.env` excluded from git (your Spotify secret is not leaked)                         | Yes      |
+| 7  | Latency observations logged (at least 10 searches)                                   | Yes      |
+| 8  | Push the backend repo to GitHub (use `gh` CLI via Claude Code)                       | Yes      |
+| 9  | `npm run typecheck && npm run lint` pass cleanly in the frontend                     | Yes      |
+| 10 | Be ready to answer the concept questions from Part 1 in next class                   | Yes      |
 
 ## Claude Code Prompts Cheat Sheet
 
@@ -594,19 +620,19 @@ Given these request durations [list them], calculate p50, p95, p99.
 Explain why p99 matters more than average latency for users.
 ```
 
----
-
 ## Tips
 
-**Stay in Claude Code.** Don't copy-paste commands from Stack Overflow. Ask Claude Code to install things, run commands, and debug errors. That's the muscle.
+**Stay in Claude Code.** Don't copy-paste commands from Stack Overflow. Ask Claude Code to install things, run commands,
+and debug errors. That's the muscle.
 
-**Read what Claude generates.** Don't just run it. Ask "explain this line" whenever something is new. You're learning, not just shipping.
+**Read what Claude generates.** Don't just run it. Ask "explain this line" whenever something is new. You're learning,
+not just shipping.
 
-**Test as you go.** Every time Claude makes a change, test it. `curl`, open the browser, check the logs. Don't let broken code accumulate.
+**Test as you go.** Every time Claude makes a change, test it. `curl`, open the browser, check the logs. Don't let
+broken code accumulate.
 
-**When stuck, describe the symptom.** "I'm getting a 401 from Spotify when I call searchTracks." Claude reads your code and finds it. Don't dig alone.
-
----
+**When stuck, describe the symptom.** "I'm getting a 401 from Spotify when I call searchTracks." Claude reads your code
+and finds it. Don't dig alone.
 
 ## Resources
 
@@ -641,16 +667,18 @@ Explain why p99 matters more than average latency for users.
 
 ### Latency & Metrics
 
-- [Google SRE: Monitoring distributed systems (Ch. 6)](https://sre.google/sre-book/monitoring-distributed-systems/): section on the Four Golden Signals
+- [Google SRE: Monitoring distributed systems (Ch. 6)](https://sre.google/sre-book/monitoring-distributed-systems/):
+  section on the Four Golden Signals
 - [ByteByteGo: Latency vs Throughput](https://www.youtube.com/@ByteByteGo) (search the channel)
-
----
 
 ## What's Next
 
-Next class, we're taking a sharp turn. The course is being redesigned: new structure, new philosophy, new ways to think about what engineering even IS in the AI era. This homework gives you muscle you'll need either way: a Node + Express backend, a real external API integration, and the beginnings of system thinking.
+Next class, we're taking a sharp turn. The course is being redesigned: new structure, new philosophy, new ways to think
+about what engineering even IS in the AI era. This homework gives you muscle you'll need either way: a Node + Express
+backend, a real external API integration, and the beginnings of system thinking.
 
 Show up next class with:
+
 - Your backend running, showing real Spotify data in your frontend
 - Answers to the concept questions (verbally, not written)
 - Any observations or questions from the study portion
