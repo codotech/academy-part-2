@@ -1,4 +1,10 @@
-# Music Finder  Homework #2
+# Music Finder — Homework #2
+
+## Watch This First
+
+<video src="intro.mp4" controls width="100%"></video>
+
+---
 
 This repo has two starters. You build on top of both.
 
