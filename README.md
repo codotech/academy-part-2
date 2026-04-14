@@ -2,7 +2,9 @@
 
 ## Watch This First
 
-<video src="intro.mp4" controls width="100%"></video>
+> 📺 [**→ Watch the intro before you start**](intro.mp4)
+>
+> *Download and play locally — explains what you're building and how Claude works in this homework.*
 
 ---
 
