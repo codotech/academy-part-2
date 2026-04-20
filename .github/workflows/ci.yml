@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [exercise-3, 'student/**']
+  pull_request:
+    branches: [exercise-3]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: cd backend && npm ci
+      - run: cd backend && npm run lint
+
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: cd backend && npm ci
+      - run: cd backend && npm run typecheck
+
+  system-test:
+    runs-on: ubuntu-latest
+    needs: [lint, typecheck]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: cd backend && npm ci
+      - run: cd backend && bash scripts/build-test-image.sh
+      - run: cd backend && npm run test:system
+        env:
+          SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
+          SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
+
+  build:
+    runs-on: ubuntu-latest
+    needs: [system-test]
+    steps:
+      - uses: actions/checkout@v4
+      - run: cd backend && docker build -t music-finder-backend:latest .
