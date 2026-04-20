@@ -1,62 +1,107 @@
-# Music Finder — Homework #2
+# Music Finder — Exercise 3: Make It Shippable
 
-## Watch This First
+You built a backend that searches Spotify and a frontend that displays results. It works on your laptop. Exercise 3 is about making it real: described, containerized, tested, validated, and deployed.
 
-> 📺 [**→ Watch the intro before you start**](intro.mp4)
->
-> *Download and play locally — explains what you're building and how Claude works in this homework.*
+**No new features.** Everything is about the existing backend.
+
+```
+.
+├── backend/       Express + Spotify integration + OpenAPI
+├── frontend/      Pre-built UI (unchanged from HW2)
+├── docs/          Exercise materials — start here
+└── .claude/       Codo Guide config (loads automatically in Claude Code)
+```
 
 ---
-
-This repo has two starters. You build on top of both.
-
-```
-demo/
-├── frontend/   ← design system + SPA shell given. You wire the data layer.
-└── backend/    ← Express scaffold given. You build the Spotify integration.
-```
 
 ## Quick Start
 
 ```bash
-# Frontend
-cd frontend && npm install && npm run dev
-# → http://localhost:5173  page renders, searches fail (expected)
-
-# Backend (new terminal)
-cd backend
-cp .env.example .env   # paste your Spotify credentials
-npm install && npm run dev
-# → http://localhost:3000/health returns { "status": "ok" }
+git clone https://github.com/codotech/academy.git
+cd academy
+git checkout student/<your-name>
 ```
 
-Read the README in each folder before touching any code.
+### Backend
+
+```bash
+cd backend
+cp .env.example .env   # paste your Spotify credentials
+npm install
+npm run dev
+# → http://localhost:3000/health returns { "status": "ok" }
+# → http://localhost:3000/api-docs opens Swagger UI
+```
+
+### Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+# → http://localhost:5173
+```
 
 ---
 
-## How Claude Works in This Homework
+## Branch Topology
 
-Claude Code is your primary tool  not just for writing code, but for understanding what you build. Here's how it works differently in this homework:
-
-**Claude is Socratic.** When you ask "how do I implement X", Claude won't always just implement it. It may ask what you think should happen first. That's intentional. The goal is understanding, not code generation.
-
-**Claude knows the repo.** This repo has a root `.claude/CLAUDE.md` that gives Claude context  what the stubs are, what concepts matter, what you should understand by the end. Claude uses this to guide, not just to answer.
-
-**`/checkpoint` is yours.** At any point, type `/checkpoint` and Claude switches into learning mode. It asks 3 questions about what was just built  one at a time, conversationally. Not a quiz. A check that what landed in your head matches what went into the repo.
-
-**When to use `/checkpoint`:**
-- After implementing `src/api.ts` in the frontend
-- After implementing `src/state.ts`
-- After the Spotify OAuth flow works in the backend
-- After the full system runs end-to-end
-
-**The workflow:**
 ```
-1. Read the stub / README
-2. Tell Claude what you want to build (describe the outcome, not the steps)
-3. Claude implements. You read and understand.
-4. Run /checkpoint when something clicks.
-5. Move to the next thing.
+exercise-2              ← HW2 starting state (preserved)
+exercise-3 (default)    ← Ex3 template: reference API + OpenAPI + scaffolding
+student/<your-name>     ← your working branch
 ```
 
-You're not here to type code. You're here to understand what the code does and why it's structured that way.
+**Two paths to the starting line:**
+
+- **Finished HW2?** Port your Spotify implementation onto your `student/<name>` branch. Good git practice.
+- **Didn't finish HW2?** The reference implementation on `exercise-3` is ready. Start directly with Docker, CI, and deploy.
+
+---
+
+## Exercise Materials
+
+All in `docs/`:
+
+| File | What it is |
+|---|---|
+| **`exercise-spec.md`** | The homework: deliverables, acceptance criteria, step-by-step |
+| **`walkthrough-laptop-to-production.md`** | Class backbone — the "why" behind every step |
+| **`api-contracts.md`** | Deep dive on contracts, Zod, OAuth, and the OpenAPI ecosystem |
+
+**Videos:** 7 NotebookLM deep-dives (git, Docker, CI, OpenAPI, env vars, Render, Claude+CI). Links shared in Slack.
+
+Start with `docs/exercise-spec.md`.
+
+---
+
+## The Spine
+
+Six questions. Each one depends on the previous.
+
+```
+You wrote code
+  → Can you describe it?      (OpenAPI / Swagger UI at /api-docs)
+  → Can you run it anywhere?  (Docker, env vars)
+  → Can you prove it works?   (curl, Postman, system tests)
+  → Can machines prove it?    (CI — GitHub Actions)
+  → Can the world see it?     (Deploy to Render.com)
+  → Can your AI partner keep it working?  (Claude + CI feedback loop)
+```
+
+---
+
+## How Claude Works in This Exercise
+
+The Codo Guide (`.claude/CLAUDE.md`) is configured for Exercise 3. It:
+
+- **Greets you** on session start with context and available skills
+- **Nudges commits** at natural checkpoints (test green, endpoint wired, before task switch)
+- **Nudges lint** before you move to the next section
+- **Nudges CI pushes** when you have local commits the pipeline hasn't seen
+
+**Skills:**
+- `/checkpoint` — 3 quick questions on what you just built (2 min)
+- `/explainback` — explain a concept in your own words; the Guide critiques
+
+The Guide implements, but it asks before explaining. Your job is to design, decide, and prove it works.
