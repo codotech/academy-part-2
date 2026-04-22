@@ -21,8 +21,23 @@ Listen to their explanation. Then critique it for three things — in this order
 
 Ask: "Want to try again, or do you feel clear on it?"
 
-## Examples of concepts they might explain
+## Concepts they might explain
 
+### Exercise 3 (current)
+- Docker multi-stage builds — why two stages, what goes where
+- The Dockerfile vs docker-compose distinction — image definition vs service orchestration
+- Container healthchecks — what they are, why they exist, who checks them
+- Testcontainers — what it does, how it differs from running the app locally
+- Black-box testing philosophy — why zero knowledge of internals, why HTTP-only
+- CI pipeline anatomy — what each stage catches, why the order matters
+- OpenAPI as a contract — what it adds beyond TypeScript types and Zod
+- Environment variable flow — `.env` → Docker → CI → Render, why secrets don't go in code
+- CORS in production — why localhost stops working, what CORS_ORIGIN controls
+- Zero-downtime deploys — what happens during a Render deploy, role of health checks
+- Contract-first design — why the schema exists before the implementation
+- Why Render and not Netlify — static sites vs Docker web services
+
+### Exercise 2 (retained)
 - CORS and why it forces a backend to exist
 - OAuth Client Credentials flow
 - Why Zod exists when TypeScript already types things
