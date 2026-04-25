@@ -4,14 +4,6 @@ You built a backend that searches Spotify and a frontend that displays results. 
 
 **No new features.** Everything is about the existing backend.
 
-```
-.
-├── backend/       Express + Spotify integration + OpenAPI
-├── frontend/      Pre-built UI (unchanged from HW2)
-├── materials/     Exercise materials, concept references, and videos — start here
-└── .claude/       Codo Guide config (loads automatically in Claude Code)
-```
-
 ---
 
 ## Quick Start
@@ -44,40 +36,9 @@ npm run dev
 
 ---
 
-## Branch Topology
-
-```
-exercise-2              ← HW2 starting state (preserved)
-exercise-3 (default)    ← Ex3 template: reference API + OpenAPI + scaffolding
-student/<your-name>     ← your working branch
-```
-
-**Two paths to the starting line:**
-
-- **Finished HW2?** Port your Spotify implementation onto your `student/<name>` branch. Good git practice.
-- **Didn't finish HW2?** The reference implementation on `exercise-3` is ready. Start directly with Docker, CI, and deploy.
-
----
-
-## Exercise Materials
-
-All in `materials/`:
-
-| Path | What it is |
-|---|---|
-| **`materials/docs/exercise-spec.md`** | The homework: deliverables, acceptance criteria, step-by-step |
-| **`materials/docs/walkthrough-laptop-to-production.md`** | The backbone reference, the "why" behind every step |
-| **`materials/docs/api-contracts.md`** | Deep dive on contracts, Zod, OAuth, and the OpenAPI ecosystem |
-| **`materials/concepts/*.md`** | 9 concept references (git, Docker, OpenAPI, deploy, CI, testing, artifacts) |
-| **`materials/*.mp4`** | Intro videos (00-01); concept docs link to YouTube videos |
-
-Start with `materials/docs/exercise-spec.md`. Use `/learn <number>` inside Claude Code to discuss any concept Socratically.
-
----
-
 ## The Spine
 
-Six questions. Each one depends on the previous.
+Six questions. Each one builds on the previous.
 
 ```
 You wrote code
@@ -89,20 +50,63 @@ You wrote code
   → Can your AI partner keep it working?  (Claude + CI feedback loop)
 ```
 
+Open Claude Code and type `/letsgo` to see the full roadmap with parts A-E.
+
+**The spec:** [`materials/docs/exercise-spec.md`](materials/docs/exercise-spec.md) — deliverables, acceptance criteria, and work order. Due Mon May 4.
+
 ---
 
-## How Claude Works in This Exercise
+## The Nine Concepts
 
-The Codo Guide (`.claude/CLAUDE.md`) is configured for Exercise 3. It:
+Each concept has a written reference with linked YouTube videos. Use `/learn <number>` to discuss any of them Socratically with the Codo Guide.
 
-- **Greets you** on session start with context and available skills
-- **Nudges commits** at natural checkpoints (test green, endpoint wired, before task switch)
-- **Nudges lint** before you move to the next section
-- **Nudges CI pushes** when you have local commits the pipeline hasn't seen
+| # | Concept | Prepares you for |
+|---|---------|-----------------|
+| 01 | Git in the LLM Era | Everything (meta-skill) |
+| 02 | Docker: What and Why | Part B — Containerize |
+| 03 | OpenAPI and Contracts | Part A — Describe |
+| 04 | From Localhost to Production | Part E — Deploy |
+| 05 | CI and the AI Feedback Loop | Part D — CI |
+| 06 | Why CI Exists | Part D — CI |
+| 07 | The Four Building Blocks of CI | Part D — CI |
+| 08 | Test Taxonomy: White-Box, Black-Box | Part C — System tests |
+| 09 | Artifacts and Versioning | Part B + D |
+
+Concepts are in `materials/concepts/`. Start with the ones that match the part you are working on.
+
+---
+
+## Exercise Materials
+
+| Path | What it is |
+|---|---|
+| `materials/docs/exercise-spec.md` | The homework: deliverables, acceptance criteria, step-by-step |
+| `materials/docs/walkthrough-laptop-to-production.md` | The backbone reference — the "why" behind every step |
+| `materials/docs/api-contracts.md` | Deep dive on contracts, Zod, OAuth, and the OpenAPI ecosystem |
+| `materials/concepts/*.md` | 9 concept references with YouTube videos |
+
+Start with `materials/docs/exercise-spec.md`.
+
+---
+
+## Branch Topology
+
+```
+exercise-2              ← HW2 starting state (preserved)
+exercise-3 (default)    ← Ex3 template: reference API + OpenAPI + scaffolding
+student/<your-name>     ← your working branch
+```
+
+---
+
+## The Codo Guide
+
+The Guide (`.claude/CLAUDE.md`) loads automatically when you open Claude Code in this repo.
 
 **Skills:**
-- `/learn <topic>` — Socratic walk-through of a concept (5–10 min)
+- `/letsgo` — See the exercise roadmap and pick where to start
+- `/learn <number>` — Socratic walk-through of a concept (5-10 min)
 - `/checkpoint` — 3 quick questions on what you just built (2 min)
-- `/explainback` — explain a concept in your own words; the Guide critiques
+- `/explainback` — Explain a concept in your own words; the Guide critiques
 
-The Guide implements, but it asks before explaining. Your job is to design, decide, and prove it works.
+**Nudges:** The Guide nudges you to commit at natural checkpoints, run lint before moving on, and push to CI after a few local commits. These are learning guardrails, not rules.
